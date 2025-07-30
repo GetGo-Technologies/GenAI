@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive AI Training: Gemini & NotebookLM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#2C3E50]">AI Productivity Training by Malik Badaruddin</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="scrollToSection('intro')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">The Big Picture</button>
+                        <button onclick="scrollToSection('gemini')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">Meet Gemini</button>
+                        <button onclick="scrollToSection('notebooklm')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">Meet NotebookLM</button>
+                        <button onclick="scrollToSection('prompting')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">Mastering Prompts</button>
+                        <button onclick="scrollToSection('synergy')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">Better Together</button>
+                        <button onclick="scrollToSection('responsible-ai')" class="nav-button px-3 py-2 rounded-md text-sm font-medium">Responsible AI</button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <select onchange="scrollToSection(this.value)" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="intro">The Big Picture</option>
+                        <option value="gemini">Meet Gemini</option>
+                        <option value="notebooklm">Meet NotebookLM</option>
+                        <option value="prompting">Mastering Prompts</option>
+                        <option value="synergy">Better Together</option>
+                        <option value="responsible-ai">Responsible AI</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Content sections go here -->
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
+            <p>&copy; 2025 Your Company Inc. Empowering our workforce with AI.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>
