@@ -1,80 +1,79 @@
+/* GetGo.sg-inspired palette: teal, blue, green, white, dark gray */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f9f9f9;
-    color: #2C3E50;
-    margin: 0;
-    padding: 0;
+    background-color: #F7F9FA; /* light background */
+    color: #222E3A; /* dark gray text */
 }
-
 .nav-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    color: #2C3E50;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
 }
-
 .nav-button.active,
 .nav-button:hover {
-    background-color: rgba(211, 84, 0, 0.1);
+    color: #00B2A9; /* GetGo teal */
+    border-bottom-color: #00B2A9;
 }
-
 .card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    transition: transform 0.2s;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E7EF;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 178, 169, 0.05), 0 2px 4px -2px rgba(0, 178, 169, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 178, 169, 0.07), 0 4px 6px -4px rgba(0, 178, 169, 0.07);
 }
-
 .tab-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 12px;
-    font-weight: 500;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
-
 .tab-button.active {
-    background-color: rgba(211, 84, 0, 0.1);
+    background-color: #00B2A9;
+    color: white;
 }
-
 .tab-content {
     display: none;
 }
-
 .tab-content.active {
     display: block;
 }
-
 .chart-container {
     position: relative;
-    height: 400px;
-    margin-bottom: 24px;
+    width: 100%;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 350px;
+    max-height: 45vh;
 }
-
 .quiz-option {
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    padding: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    border: 2px solid #E0E7EF;
+    transition: all 0.2s ease-in-out;
 }
-
 .quiz-option:hover {
-    background-color: #e0e0e0;
+    border-color: #00B2A9;
+    background-color: #E6F7F6;
 }
-
 .quiz-option.selected {
-    background-color: #d35400;
-    color: white;
+    border-color: #00B2A9;
+    background-color: #CFF3F0;
 }
-
 .quiz-feedback {
     display: none;
+}
+/* Accent backgrounds for prompt cards */
+.bg-orange-50, .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50 {
+    background-color: #E6F7F6 !important; /* GetGo light teal */
+}
+.bg-orange-100, .bg-blue-100, .bg-green-100, .bg-purple-100, .bg-yellow-100 {
+    background-color: #CFF3F0 !important; /* GetGo lighter teal */
+}
+/* Accent for headings */
+.text-[#D35400], .text-[#2C3E50] {
+    color: #00B2A9 !important;
+}
+/* Footer */
+footer {
+    background-color: #222E3A;
+    color: #FFFFFF;
 }
