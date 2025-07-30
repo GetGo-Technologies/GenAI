@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive AI Training: Gemini & NotebookLM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Subtle Accents -->
+    <!-- Application Structure Plan: The SPA is designed as a guided learning journey, breaking the lesson plan into logical, interactive modules. It starts with a high-level introduction ('The Big Picture'), then dives into each tool separately ('Meet Gemini', 'Meet NotebookLM'). The core practical skill, 'Mastering Prompts', is a central, interactive section. 'Better Together' demonstrates synergy, and 'Responsible AI' covers crucial guidelines. This thematic, non-linear structure allows users to explore topics based on interest or need, which is more engaging than a linear document. Navigation is handled by a sticky top bar, allowing easy access to any section. Interactive elements like toggles for myths, tabs for features, and a simulated quiz for prompt practice are used to enhance engagement and retention. -->
+    <!-- Visualization & Content Choices: Report Info: Gemini vs. NotebookLM features. -> Goal: Compare. -> Viz/Method: A dynamic bar chart and interactive feature tables. -> Interaction: Users can hover over chart bars and click on tabs to reveal detailed information. -> Justification: Visual comparison is faster to grasp than text. Interactive tables allow users to self-explore features without being overwhelmed. -> Library/Method: Chart.js for the chart, HTML/CSS/JS for the tabs. Report Info: Prompt Engineering Principles (5 Ps). -> Goal: Organize & Teach. -> Viz/Method: An interactive card-based section. -> Interaction: Users click on each 'P' (Task, Context, etc.) to reveal its description. -> Justification: Breaks down a complex topic into digestible, self-paced chunks. -> Library/Method: HTML/CSS/JS. Report Info: Fun Activities. -> Goal: Engage & Reinforce. -> Viz/Method: A simulated 'Prompt Engineering Game Show' quiz. -> Interaction: Users select answers and get immediate feedback. -> Justification: Gamification increases engagement and makes learning memorable. -> Library/Method: HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            /* Warm Neutral Background */
+            color: #4A4A4A;
+        }
+
+        .nav-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-button.active,
+        .nav-button:hover {
+            color: #D35400;
+            /* Subtle Accent */
+            border-bottom-color: #D35400;
+        }
+
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background-color: #D35400;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 45vh;
+        }
+
+        .quiz-option {
+            border: 2px solid #EAEAEA;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .quiz-option:hover {
+            border-color: #D35400;
+            background-color: #FEF5E7;
+        }
+
+        .quiz-option.selected {
+            border-color: #D35400;
+            background-color: #FDEBD0;
+        }
+
+        .quiz-feedback {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#2C3E50]">AI Productivity Training by Malik Badaruddin</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="scrollToSection('intro')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">The Big Picture</button>
+                        <button onclick="scrollToSection('gemini')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">Meet Gemini</button>
+                        <button onclick="scrollToSection('notebooklm')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">Meet NotebookLM</button>
+                        <button onclick="scrollToSection('prompting')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">Mastering Prompts</button>
+                        <button onclick="scrollToSection('synergy')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">Better Together</button>
+                        <button onclick="scrollToSection('responsible-ai')"
+                            class="nav-button px-3 py-2 rounded-md text-sm font-medium">Responsible AI</button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <select onchange="scrollToSection(this.value)"
+                        class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="intro">The Big Picture</option>
+                        <option value="gemini">Meet Gemini</option>
+                        <option value="notebooklm">Meet NotebookLM</option>
+                        <option value="prompting">Mastering Prompts</option>
+                        <option value="synergy">Better Together</option>
+                        <option value="responsible-ai">Responsible AI</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <!-- Section 1: The Big Picture -->
+        <section id="intro" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Embracing AI in the Workplace</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">This training introduces the transformative
+                capabilities of Google's Gemini and NotebookLM. This section aims to demystify AI, highlight its
+                universal relevance, and address common concerns, setting a positive and empowering tone for your
+                journey into AI-powered productivity.</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Myth 1 -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2 text-[#D35400]">Myth: AI is a Magic Wand</h3>
+                    <p class="mb-4">Many believe AI solves all problems instantly. The reality is more nuanced.</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" class="sr-only peer"
+                            onchange="toggleVisibility('reality1', this.checked)">
+                        <div
+                            class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D35400]">
+                        </div>
+                        <span class="ml-3 text-sm font-medium">Show Reality</span>
+                    </label>
+                    <div id="reality1" class="mt-4 hidden transition-opacity duration-500">
+                        <p class="font-semibold text-[#2C3E50]">Reality:</p>
+                        <p>AI's effectiveness depends on human strategy, clear goals, and quality data. It's a powerful
+                            "digital teammate" that augments our skills, handling data processing while we provide
+                            judgment and creativity.</p>
+                    </div>
+                </div>
+                <!-- Myth 2 -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2 text-[#D35400]">Myth: AI Will Replace Human Jobs</h3>
+                    <p class="mb-4">A common fear is that AI will make human roles obsolete.</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" class="sr-only peer"
+                            onchange="toggleVisibility('reality2', this.checked)">
+                        <div
+                            class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D35400]">
+                        </div>
+                        <span class="ml-3 text-sm font-medium">Show Reality</span>
+                    </label>
+                    <div id="reality2" class="mt-4 hidden transition-opacity duration-500">
+                        <p class="font-semibold text-[#2C3E50]">Reality:</p>
+                        <p>AI enhances, not replaces. It automates repetitive tasks, freeing us to focus on strategic,
+                            creative, and interpersonal work where human skills are irreplaceable. It's about evolving
+                            roles, not eliminating them.</p>
+                    </div>
+                </div>
+                <!-- Myth 3 -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2 text-[#D35400]">Myth: AI is Only for Tech Giants</h3>
+                    <p class="mb-4">Many think AI is too expensive and complex for regular companies.</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" class="sr-only peer"
+                            onchange="toggleVisibility('reality3', this.checked)">
+                        <div
+                            class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D35400]">
+                        </div>
+                        <span class="ml-3 text-sm font-medium">Show Reality</span>
+                    </label>
+                    <div id="reality3" class="mt-4 hidden transition-opacity duration-500">
+                        <p class="font-semibold text-[#2C3E50]">Reality:</p>
+                        <p>Cloud computing and user-friendly interfaces have made AI accessible and affordable for all
+                            industries and company sizes. It's a practical productivity tool for everyone, not just data
+                            scientists.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Meet Gemini -->
+        <section id="gemini" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Meet Gemini: Your Versatile AI Assistant</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">Gemini is your powerful collaborative partner,
+                seamlessly integrated into Google Workspace. It acts as a coach, thought partner, and productivity
+                booster. This section explores its core capabilities and how you can leverage them in your daily tasks,
+                from writing emails to analyzing data.</p>
+
+            <div class="card p-6 md:p-8">
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button class="tab-button flex-1 py-2 px-4 text-center font-medium active"
+                        onclick="switchTab('gemini', 'tab1')">Help Me Write</button>
+                    <button class="tab-button flex-1 py-2 px-4 text-center font-medium"
+                        onclick="switchTab('gemini', 'tab2')">Help Me Design</button>
+                    <button class="tab-button flex-1 py-2 px-4 text-center font-medium"
+                        onclick="switchTab('gemini', 'tab3')">Help Me Organize</button>
+                    <button class="tab-button flex-1 py-2 px-4 text-center font-medium"
+                        onclick="switchTab('gemini', 'tab4')">Enhance Meetings</button>
+                </div>
+                <div id="gemini-tab1" class="tab-content active">
+                    <h3 class="font-bold text-xl mb-2">Gmail & Google Docs</h3>
+                    <p>Gemini saves you time by drafting and refining documents. Prompt it to write a blog post, a
+                        project plan, or a customer email. It can also proofread, check grammar, and improve your
+                        writing style, helping you produce high-quality content faster.</p>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="font-semibold">Example in action:</p>
+                        <p class="text-sm italic">You need to send an email to a client about a project delay.</p>
+                        <p class="text-sm font-mono bg-gray-100 p-2 rounded mt-2">Prompt: "Draft an email to John Doe
+                            about the delay on Project Alpha. Explain that the new delivery date is next Friday due to
+                            unexpected supply chain issues. Apologize for the inconvenience and offer a 10% discount on
+                            their next order."</p>
+                        <p class="text-sm mt-2">Gemini will generate a professional email, ready for review and sending.
+                        </p>
+                    </div>
+                </div>
+                <div id="gemini-tab2" class="tab-content">
+                    <h3 class="font-bold text-xl mb-2">Google Slides</h3>
+                    <p>Struggling with presentation design? Gemini can create custom images and illustrations directly
+                        within Slides. It can also take your rough outline and draft focused, polished content for each
+                        slide, turning ideas into compelling presentations.</p>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="font-semibold">Example in action:</p>
+                        <p class="text-sm italic">You're preparing a presentation on "Future of Work" and need a visual
+                            for a slide on remote collaboration.</p>
+                        <p class="text-sm font-mono bg-gray-100 p-2 rounded mt-2">Prompt: "Generate an image of diverse
+                            professionals collaborating seamlessly from different remote locations, with a futuristic,
+                            clean aesthetic."</p>
+                        <p class="text-sm mt-2">Gemini will create a relevant image that you can insert directly into
+                            your slide.</p>
+                    </div>
+                </div>
+                <div id="gemini-tab3" class="tab-content">
+                    <h3 class="font-bold text-xl mb-2">Google Sheets</h3>
+                    <p>Gemini streamlines data management. It can create custom tables for project tracking or event
+                        planning. Most powerfully, you can query your data in natural language (e.g., "What are the top
+                        3 products by revenue?") to get instant summaries and insights.</p>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="font-semibold">Example in action:</p>
+                        <p class="text-sm italic">You have a spreadsheet of sales data and want to quickly see top
+                            performers.</p>
+                        <p class="text-sm font-mono bg-gray-100 p-2 rounded mt-2">Prompt: "In this sheet, identify the
+                            top 5 sales representatives by total revenue for Q2 and list their average deal size."</p>
+                        <p class="text-sm mt-2">Gemini will analyze your data and provide the requested insights,
+                            potentially even generating a mini-report or a summary table.</p>
+                    </div>
+                </div>
+                <div id="gemini-tab4" class="tab-content">
+                    <h3 class="font-bold text-xl mb-2">Google Meet</h3>
+                    <p>Transform your meetings with AI. Gemini can automatically take notes, freeing you to focus on the
+                        discussion. It also offers translated captions to remove language barriers and studio features
+                        to enhance your video and audio quality for a professional presence.</p>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="font-semibold">Example in action:</p>
+                        <p class="text-sm italic">During a client meeting, you want to ensure all action items are
+                            captured without distraction.</p>
+                        <p class="text-sm font-mono bg-gray-100 p-2 rounded mt-2">Action: Enable "Take notes for me" in
+                            Google Meet's Gemini panel.</p>
+                        <p class="text-sm mt-2">Gemini will automatically transcribe the meeting and summarize key
+                            discussion points, decisions, and action items, which you can then review and share after
+                            the call.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Meet NotebookLM -->
+        <section id="notebooklm" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Unlocking Insights with NotebookLM</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">NotebookLM is your personalized research partner.
+                Unlike other AIs, it's a "source-grounded" powerhouse, meaning it bases its analysis exclusively on the
+                documents you provide. This section explores how its unique features help you organize knowledge and
+                extract deep, credible insights from your own information.</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Source-Grounded</h3>
+                    <p>Upload PDFs, Docs, videos, and more. NotebookLM analyzes only your content, which minimizes
+                        "hallucinations" and ensures responses are credible and relevant to you. It's your expert in
+                        what matters most to you.</p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">Upload a 50-page client contract and ask: "Summarize the key clauses
+                            regarding intellectual property rights." NotebookLM will provide a summary based *only* on
+                            that contract, with citations.</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Instant Insights & Q&A</h3>
+                    <p>It automatically summarizes key points and connections across documents. Ask specific questions
+                        about your sources and get detailed, cited answers instantly, saving you hours of manual
+                        research.</p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">After uploading several market research reports: "Compare the consumer
+                            preferences for product A versus product B based on these reports."</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Audio Overviews</h3>
+                    <p>A standout feature that converts your documents into engaging, podcast-style audio summaries.
+                        Listen and learn while commuting or working, making it easy to absorb information on the go.</p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">Upload a lengthy industry whitepaper and generate an "Audio Overview"
+                            to listen to its key findings during your commute instead of reading.</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Mind Maps & Timelines</h3>
+                    <p>Visually organize complex topics with branching mind maps or see how events unfolded with
+                        chronological timelines. These features make dense information easier to understand and analyze.
+                    </p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">Upload project meeting notes from the last 6 months. Ask NotebookLM to
+                            "Generate a timeline of key milestones and decisions for Project Phoenix."</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Internal Knowledge Hub</h3>
+                    <p>Create a central source of truth for projects or teams. Onboard new hires faster by compiling all
+                        materials in one notebook, or ensure smooth handovers by organizing all client notes and project
+                        details.</p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">For new employee onboarding, create a NotebookLM notebook with all HR
+                            policies, IT setup guides, and team contact lists. New hires can then ask questions directly
+                            to this curated knowledge base.</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Competitive Analysis</h3>
+                    <p>Upload competitor whitepapers or reports and ask NotebookLM to compare pricing, features, or
+                        strategies. It can generate tables and FAQs to quickly give your team a competitive edge.</p>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-sm">Example:</p>
+                        <p class="text-xs italic">Upload competitor product spec sheets. Ask NotebookLM to "Create a
+                            comparison table of features for Product X, Product Y, and our own Product Z."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Mastering Prompts -->
+        <section id="prompting" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Mastering the Art of the Prompt</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">The quality of your AI output depends directly on the
+                quality of your input. Effective prompting is a skill. This section breaks down the key ingredients of a
+                great prompt and lets you test your knowledge with a fun, interactive challenge.</p>
+
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-12">
+                <h3 class="text-2xl font-bold text-center mb-6">The 5 'P's of a Perfect Prompt</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
+                    <div class="p-4 rounded-lg cursor-pointer bg-orange-50 hover:bg-orange-100"
+                        onclick="showPromptDetail('p-task')">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h4 class="font-semibold">Task</h4>
+                    </div>
+                    <div class="p-4 rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100"
+                        onclick="showPromptDetail('p-context')">
+                        <div class="text-3xl mb-2">🌍</div>
+                        <h4 class="font-semibold">Context</h4>
+                    </div>
+                    <div class="p-4 rounded-lg cursor-pointer bg-green-50 hover:bg-green-100"
+                        onclick="showPromptDetail('p-format')">
+                        <div class="text-3xl mb-2">📑</div>
+                        <h4 class="font-semibold">Format</h4>
+                    </div>
+                    <div class="p-4 rounded-lg cursor-pointer bg-purple-50 hover:bg-purple-100"
+                        onclick="showPromptDetail('p-persona')">
+                        <div class="text-3xl mb-2">🧑‍💼</div>
+                        <h4 class="font-semibold">Persona</h4>
+                    </div>
+                    <div class="p-4 rounded-lg cursor-pointer bg-yellow-50 hover:bg-yellow-100"
+                        onclick="showPromptDetail('p-example')">
+                        <div class="text-3xl mb-2">✨</div>
+                        <h4 class="font-semibold">Example</h4>
+                    </div>
+                </div>
+                <div id="prompt-detail-box" class="mt-6 p-6 bg-gray-50 rounded-lg text-center hidden">
+                    <h4 id="prompt-detail-title" class="font-bold text-xl mb-2"></h4>
+                    <p id="prompt-detail-text"></p>
+                </div>
+            </div>
+
+            <!-- Prompt Game Show -->
+            <div class="card p-6 md:p-8">
+                <h3 class="text-2xl font-bold text-center mb-2">The Prompt Engineering Game Show!</h3>
+                <p class="text-center mb-6">Test your skills. Which prompt is most effective?</p>
+                <div id="quiz-question-container">
+                    <p class="font-semibold text-lg mb-4">You want to draft an email to your team about a new remote
+                        work policy. Which prompt will get the best result?</p>
+                    <div class="space-y-4">
+                        <div id="q1-op1" class="quiz-option p-4 rounded-lg cursor-pointer"
+                            onclick="selectQuizOption(1, 1)">A) Tell me about the new policy.</div>
+                        <div id="q1-op2" class="quiz-option p-4 rounded-lg cursor-pointer"
+                            onclick="selectQuizOption(1, 2)">B) Write an email.</div>
+                        <div id="q1-op3" class="quiz-option p-4 rounded-lg cursor-pointer"
+                            onclick="selectQuizOption(1, 3)">C) You are an HR manager. Draft a clear, concise, and
+                            encouraging email to all employees explaining the new hybrid work policy. The key points
+                            are: 3 days in-office, flexible hours, and the policy starts next month. Format it with a
+                            clear subject line and bullet points for the key details.</div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button
+                            class="bg-[#D35400] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#E67E22] transition-colors"
+                            onclick="submitQuiz(1, 3)">Submit Answer</button>
+                    </div>
+                    <div id="quiz-feedback-1-correct"
+                        class="quiz-feedback mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
+                        <p><span class="font-bold">Correct!</span> This prompt uses all 5 'P's: Persona (HR manager),
+                            Task (Draft an email), Context (new policy details), Format (subject line, bullet points),
+                            and implies a professional Example. This leads to a much better, ready-to-use result.</p>
+                    </div>
+                    <div id="quiz-feedback-1-incorrect"
+                        class="quiz-feedback mt-4 p-4 bg-red-100 text-red-800 rounded-lg">
+                        <p><span class="font-bold">Not quite.</span> The best prompts are specific and provide context.
+                            Vague requests lead to vague answers. Try to include the Task, Context, Format, and Persona
+                            for the AI.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Better Together -->
+        <section id="synergy" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Better Together: Gemini + NotebookLM</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">The true power of these tools is unlocked when you
+                use them in tandem. Gemini is your creative spark for brainstorming, while NotebookLM is your research
+                engine for grounding those ideas in facts. This section shows you how to combine them for an optimal
+                workflow.</p>
+
+            <div class="chart-container mb-12">
+                <canvas id="synergyChart"></canvas>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Scenario: New Marketing Campaign</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><span class="font-semibold">Gemini:</span> Brainstorm creative themes and slogans for the
+                            campaign.</li>
+                        <li><span class="font-semibold">NotebookLM:</span> Upload market research and competitor
+                            analysis.</li>
+                        <li><span class="font-semibold">NotebookLM:</span> Ask it to validate your themes against the
+                            data. "Which theme resonates most with our target audience based on these reports?"</li>
+                        <li><span class="font-semibold">Gemini:</span> Use the validated themes and data-driven insights
+                            to draft specific ad copy and social media posts.</li>
+                    </ol>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Scenario: Prepare for a Client Meeting</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><span class="font-semibold">NotebookLM:</span> Upload all past meeting notes, proposals, and
+                            emails for that client.</li>
+                        <li><span class="font-semibold">NotebookLM:</span> Ask for a summary of key challenges and all
+                            open action items.</li>
+                        <li><span class="font-semibold">Gemini:</span> Use that summary to draft a personalized meeting
+                            agenda that addresses their specific pain points.</li>
+                        <li><span class="font-semibold">Gemini (in Meet):</span> During the meeting, use the "Take notes
+                            for me" feature to capture everything automatically.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Responsible AI -->
+        <section id="responsible-ai" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#2C3E50]">Navigating AI Responsibly</h2>
+            <p class="text-center max-w-3xl mx-auto mb-12 text-lg">AI is a powerful tool, but it has limitations.
+                Understanding them is key to using AI effectively and ethically. This final section covers best
+                practices for verification and responsible use, ensuring you can trust your AI-powered insights.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-6 bg-red-50 border-red-200">
+                    <h3 class="font-bold text-lg mb-2 text-red-800">⚠️ Key Limitation: Hallucinations</h3>
+                    <p>AI can sometimes "hallucinate" – confidently state incorrect or fabricated information. It's not
+                        lying; it's predicting the next most likely word, which can sometimes go wrong. This is why
+                        human oversight is critical.</p>
+                </div>
+                <div class="card p-6 bg-green-50 border-green-200">
+                    <h3 class="font-bold text-lg mb-2 text-green-800">✅ Best Practice: Trust, but Verify</h3>
+                    <p>Always treat AI as a "brilliant but fallible colleague." Double-check any facts, figures, or
+                        critical information it provides. The ultimate responsibility for the accuracy and
+                        appropriateness of any output rests with you, the user.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Data Privacy</h3>
+                    <p>Your data within the Google Workspace environment is not used to train models without permission.
+                        However, always follow company policy regarding sensitive or confidential information when using
+                        any AI tool.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg mb-2">Bias Awareness</h3>
+                    <p>AI learns from vast amounts of text from the internet, which can contain human biases. Always
+                        critically evaluate AI outputs for fairness and consider having a diverse team review important,
+                        AI-assisted work.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
+            <p>&copy; 2025 Your Company Inc. Empowering our workforce with AI.</p>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Update active nav button state
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.classList.remove('active');
+                    if (button.getAttribute('onclick').includes(sectionId)) {
+                        button.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        function toggleVisibility(elementId, isChecked) {
+            const element = document.getElementById(elementId);
+            if (isChecked) {
+                element.style.display = 'block';
+                setTimeout(() => element.style.opacity = 1, 10);
+            } else {
+                element.style.opacity = 0;
+                setTimeout(() => element.style.display = 'none', 500);
+            }
+        }
+
+        function switchTab(prefix, tabId) {
+            const container = document.getElementById(prefix);
+            container.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            container.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(`${prefix}-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        const promptDetails = {
+            'p-task': { title: '🎯 Task: Be Specific', text: 'Clearly state what you want the AI to do. Use strong action verbs like "Draft," "Summarize," "Compare," "Generate," or "Translate."' },
+            'p-context': { title: '🌍 Context: Set the Scene', text: 'Provide relevant background information. Who is the audience? What is the goal? The more context, the more tailored the response.' },
+            'p-format': { title: '📑 Format: Define the Structure', text: 'Specify the output format you need. Should it be a bulleted list, a table, an email, a poem, or a JSON object?' },
+            'p-persona': { title: '🧑‍💼 Persona: Assign a Role', text: 'Tell the AI who to be. "Act as a marketing expert," or "You are a friendly customer service agent." This shapes the tone and style.' },
+            'p-example': { title: '✨ Example: Show, Don\'t Just Tell', text: 'Provide an example of the output you want. This is one of the most effective ways to guide the AI to the desired style and structure.' }
+        };
+
+        function showPromptDetail(detailKey) {
+            const detailBox = document.getElementById('prompt-detail-box');
+            const detailTitle = document.getElementById('prompt-detail-title');
+            const detailText = document.getElementById('prompt-detail-text');
+
+            detailTitle.textContent = promptDetails[detailKey].title;
+            detailText.textContent = promptDetails[detailKey].text;
+
+            detailBox.style.display = 'block';
+        }
+
+        let selectedQuizOption = null;
+        function selectQuizOption(questionId, optionId) {
+            selectedQuizOption = optionId;
+            document.querySelectorAll(`#quiz-question-container .quiz-option`).forEach(el => el.classList.remove('selected'));
+            document.getElementById(`q${questionId}-op${optionId}`).classList.add('selected');
+        }
+
+        function submitQuiz(questionId, correctOptionId) {
+            const correctFeedback = document.getElementById(`quiz-feedback-${questionId}-correct`);
+            const incorrectFeedback = document.getElementById(`quiz-feedback-${questionId}-incorrect`);
+
+            correctFeedback.style.display = 'none';
+            incorrectFeedback.style.display = 'none';
+
+            if (selectedQuizOption === null) {
+                alert('Please select an answer!');
+                return;
+            }
+
+            if (selectedQuizOption === correctOptionId) {
+                correctFeedback.style.display = 'block';
+            } else {
+                incorrectFeedback.style.display = 'block';
+            }
+        }
+
+        window.onload = function () {
+            const ctx = document.getElementById('synergyChart').getContext('2d');
+            const synergyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Brainstorming & Creativity', 'Data Grounding & Accuracy', 'Content Generation', 'Research & Synthesis'],
+                    datasets: [{
+                        label: 'Gemini Strengths',
+                        data: [90, 40, 85, 50],
+                        backgroundColor: 'rgba(211, 84, 0, 0.6)',
+                        borderColor: 'rgba(211, 84, 0, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'NotebookLM Strengths',
+                        data: [30, 95, 40, 90],
+                        backgroundColor: 'rgba(44, 62, 80, 0.6)',
+                        borderColor: 'rgba(44, 62, 80, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Relative Strength Score'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Complementary Strengths of Gemini and NotebookLM',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+
+            // Set initial active nav button
+            document.querySelector('.nav-button').classList.add('active');
+        };
+    </script>
+</body>
+
+</html>
